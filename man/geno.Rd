@@ -19,15 +19,21 @@ geno(x) <- value
 \item{x}{A \link{QuasarExperiment}.}
 
 \item{value}{A \link[BEDMatrix:BEDMatrix]{BEDMatrix::BEDMatrix} or matrix-like object
-(variants × samples).}
+(samples × variants).}
 }
 \value{
-\code{geno()} returns the \code{geno} slot (a \code{BEDMatrix} or matrix-like).
+\code{geno()} returns the \code{geno} slot (a \code{BEDMatrix}, samples × variants).
 }
 \description{
 Access the lazy genotype matrix
 }
 \examples{
-# geno(qe)          # BEDMatrix: 69638 x 100
-# geno(qe)[1:5, ]   # materialize five variant rows
+exdir <- system.file("extdata", package = "QuasarExperiment")
+qe <- QuasarExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100.tsv")
+)
+geno(qe)
+geno(qe)[1:3, 1:5]
 }

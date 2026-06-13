@@ -16,6 +16,18 @@ containing metadata columns \code{feature_id} and \code{pvalue}.
 \description{
 Extract region-level results from a quasar run
 }
+\examples{
+exdir <- system.file("extdata", package = "QuasarExperiment")
+qe <- QuasarExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100.tsv")
+)
+if (nzchar(Sys.which("quasar"))) {
+    res <- runQuasar(qe, model = "lm", mode = "cis")
+    regionHits(res)
+}
+}
 \seealso{
 \code{\link[=runQuasar]{runQuasar()}}, \code{\link[=variantHits]{variantHits()}}
 }

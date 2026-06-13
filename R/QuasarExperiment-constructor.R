@@ -33,7 +33,6 @@
 #' `rowRanges()`, consistent with Bioconductor conventions.
 #'
 #' @examples
-#' \dontrun{
 #' exdir <- system.file("extdata", package = "QuasarExperiment")
 #' qe <- QuasarExperiment(
 #'     plinkPrefix = file.path(exdir, "chr22-n100"),
@@ -42,7 +41,6 @@
 #'     grmFile     = file.path(exdir, "grm-n100.tsv")
 #' )
 #' qe
-#' }
 #'
 #' @export
 QuasarExperiment <- function(plinkPrefix, phenoFile, covFile,
@@ -128,7 +126,7 @@ QuasarExperiment <- function(plinkPrefix, phenoFile, covFile,
         rownames(grm_raw) <- grm_raw[["sample_id"]]
         grm_raw[["sample_id"]] <- NULL
         grm_raw <- grm_raw[sample_ids, sample_ids, drop = FALSE]
-        grm_mat <- Matrix::Matrix(as.matrix(grm_raw), forceSymmetric = TRUE)
+        grm_mat <- Matrix::forceSymmetric(Matrix::Matrix(as.matrix(grm_raw)))
     }
 
     # ---- assemble -------------------------------------------------------

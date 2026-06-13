@@ -4,11 +4,17 @@
 #'
 #' @param x A [QuasarExperiment].
 #' @param value A [BEDMatrix::BEDMatrix] or matrix-like object
-#'   (variants × samples).
-#' @return `geno()` returns the `geno` slot (a `BEDMatrix` or matrix-like).
+#'   (samples × variants).
+#' @return `geno()` returns the `geno` slot (a `BEDMatrix`, samples × variants).
 #' @examples
-#' # geno(qe)          # BEDMatrix: 69638 x 100
-#' # geno(qe)[1:5, ]   # materialize five variant rows
+#' exdir <- system.file("extdata", package = "QuasarExperiment")
+#' qe <- QuasarExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+#'     covFile     = file.path(exdir, "cov-n100.tsv")
+#' )
+#' geno(qe)
+#' geno(qe)[1:3, 1:5]
 #' @export
 setGeneric("geno", function(x) standardGeneric("geno"))
 
@@ -35,7 +41,13 @@ setReplaceMethod("geno", "QuasarExperiment", function(x, value) {
 #' @return `variantRanges()` returns a `GRanges` with one range per variant.
 #'   Metadata columns include `snp_id`, `ref`, and `alt`.
 #' @examples
-#' # variantRanges(qe)
+#' exdir <- system.file("extdata", package = "QuasarExperiment")
+#' qe <- QuasarExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+#'     covFile     = file.path(exdir, "cov-n100.tsv")
+#' )
+#' variantRanges(qe)
 #' @export
 setGeneric("variantRanges", function(x) standardGeneric("variantRanges"))
 
@@ -62,8 +74,20 @@ setReplaceMethod("variantRanges", "QuasarExperiment", function(x, value) {
 #'   or `NULL`.
 #' @return `grm()` returns the GRM as a `dspMatrix` or base matrix, or `NULL` if none was provided.
 #' @examples
-#' # grm(qe)       # 100 x 100 dspMatrix
-#' # is.null(grm(qe_no_grm))
+#' exdir <- system.file("extdata", package = "QuasarExperiment")
+#' qe <- QuasarExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+#'     covFile     = file.path(exdir, "cov-n100.tsv"),
+#'     grmFile     = file.path(exdir, "grm-n100.tsv")
+#' )
+#' dim(grm(qe))
+#' qe_no_grm <- QuasarExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+#'     covFile     = file.path(exdir, "cov-n100.tsv")
+#' )
+#' is.null(grm(qe_no_grm))
 #' @export
 setGeneric("grm", function(x) standardGeneric("grm"))
 
@@ -89,6 +113,14 @@ setReplaceMethod("grm", "QuasarExperiment", function(x, value) {
 #' @param value A length-one character string.
 #' @return `plinkPrefix()` returns the path prefix for the `.bed`/`.bim`/`.fam`
 #'   file set.
+#' @examples
+#' exdir <- system.file("extdata", package = "QuasarExperiment")
+#' qe <- QuasarExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+#'     covFile     = file.path(exdir, "cov-n100.tsv")
+#' )
+#' plinkPrefix(qe)
 #' @export
 setGeneric("plinkPrefix", function(x) standardGeneric("plinkPrefix"))
 

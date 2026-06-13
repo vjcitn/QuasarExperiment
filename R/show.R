@@ -15,8 +15,8 @@ setMethod("show", "QuasarExperiment", function(object) {
     cat("colData(", length(cov_cols), ") covariates:",
         paste(head(cov_cols, 4), collapse = ", "),
         if (length(cov_cols) > 4) "..." else "", "\n")
-    cat("geno:", nrow(object@geno), "variants x", ncol(object@geno),
-        "samples [BEDMatrix - lazy]\n")
+    cat("geno:", nrow(object@geno), "samples x", ncol(object@geno),
+        "variants [BEDMatrix - lazy]\n")
     cat("plinkPrefix:", object@plinkPrefix, "\n")
     cat("grm:", if (is.null(object@grm)) "none" else
         paste0(nrow(object@grm), " x ", ncol(object@grm), " matrix"), "\n")

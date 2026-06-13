@@ -27,3 +27,12 @@ file set.
 \description{
 Access the PLINK file prefix
 }
+\examples{
+exdir <- system.file("extdata", package = "QuasarExperiment")
+qe <- QuasarExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100.tsv")
+)
+plinkPrefix(qe)
+}

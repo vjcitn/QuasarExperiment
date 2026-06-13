@@ -28,6 +28,18 @@ or \code{NULL}.}
 Access the genetic relatedness matrix
 }
 \examples{
-# grm(qe)       # 100 x 100 dspMatrix
-# is.null(grm(qe_no_grm))
+exdir <- system.file("extdata", package = "QuasarExperiment")
+qe <- QuasarExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100.tsv"),
+    grmFile     = file.path(exdir, "grm-n100.tsv")
+)
+dim(grm(qe))
+qe_no_grm <- QuasarExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100.tsv")
+)
+is.null(grm(qe_no_grm))
 }

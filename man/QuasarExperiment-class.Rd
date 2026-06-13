@@ -27,7 +27,7 @@ the quasar binary so the genotype data are never materialised in R
 \section{Slots}{
 
 \describe{
-\item{\code{geno}}{A \link[BEDMatrix:BEDMatrix]{BEDMatrix::BEDMatrix} (variants × samples) or any
+\item{\code{geno}}{A \link[BEDMatrix:BEDMatrix]{BEDMatrix::BEDMatrix} (samples × variants) or any
 matrix-like object.}
 
 \item{\code{variantRanges}}{A \link[GenomicRanges:GRanges]{GenomicRanges::GRanges} of length equal to

@@ -17,6 +17,18 @@ pair, containing metadata columns \code{feature_id}, \code{snp_id}, \code{ref}, 
 \description{
 Extract variant-level results from a quasar run
 }
+\examples{
+exdir <- system.file("extdata", package = "QuasarExperiment")
+qe <- QuasarExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100.tsv")
+)
+if (nzchar(Sys.which("quasar"))) {
+    res <- runQuasar(qe, model = "lm", mode = "cis")
+    variantHits(res)
+}
+}
 \seealso{
 \code{\link[=runQuasar]{runQuasar()}}, \code{\link[=regionHits]{regionHits()}}
 }

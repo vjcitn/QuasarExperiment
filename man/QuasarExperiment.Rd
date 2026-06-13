@@ -52,7 +52,6 @@ coordinates. These are converted to 1-based closed ranges for
 \code{rowRanges()}, consistent with Bioconductor conventions.
 }
 \examples{
-\dontrun{
 exdir <- system.file("extdata", package = "QuasarExperiment")
 qe <- QuasarExperiment(
     plinkPrefix = file.path(exdir, "chr22-n100"),
@@ -61,6 +60,5 @@ qe <- QuasarExperiment(
     grmFile     = file.path(exdir, "grm-n100.tsv")
 )
 qe
-}
 
 }

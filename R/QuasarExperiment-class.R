@@ -2,7 +2,7 @@
 #' @import SummarizedExperiment
 #' @import GenomicRanges
 #' @importFrom S4Vectors DataFrame SimpleList mcols
-#' @importFrom Matrix Matrix
+#' @importFrom Matrix Matrix forceSymmetric
 #' @importFrom BEDMatrix BEDMatrix
 #' @importFrom utils head read.table write.table
 #' @importFrom stats setNames
@@ -26,7 +26,7 @@ NULL
 #' - **plinkPrefix**: path prefix for the PLINK file set, passed directly to
 #'   the quasar binary so the genotype data are never materialised in R
 #'
-#' @slot geno A [BEDMatrix::BEDMatrix] (variants × samples) or any
+#' @slot geno A [BEDMatrix::BEDMatrix] (samples × variants) or any
 #'   matrix-like object.
 #' @slot variantRanges A [GenomicRanges::GRanges] of length equal to
 #'   `nrow(geno)`.
@@ -51,18 +51,19 @@ setClass("QuasarExperiment",
 setValidity("QuasarExperiment", function(object) {
     msg <- character(0)
 
-    ng <- nrow(object@geno)
-    nv <- length(object@variantRanges)
-    if (ng != nv)
-        msg <- c(msg, sprintf(
-            "nrow(geno) (%d) must equal length(variantRanges) (%d)", ng, nv))
-
-    ns_geno <- ncol(object@geno)
+    # BEDMatrix is samples x variants: rows = samples, cols = variants
+    ns_geno <- nrow(object@geno)
     ns_se   <- ncol(object)
     if (ns_geno != ns_se)
         msg <- c(msg, sprintf(
-            "ncol(geno) (%d) must equal ncol(SummarizedExperiment) (%d)",
+            "nrow(geno) (%d) must equal ncol(SummarizedExperiment) (%d)",
             ns_geno, ns_se))
+
+    nv_geno <- ncol(object@geno)
+    nv <- length(object@variantRanges)
+    if (nv_geno != nv)
+        msg <- c(msg, sprintf(
+            "ncol(geno) (%d) must equal length(variantRanges) (%d)", nv_geno, nv))
 
     if (!is.null(object@grm)) {
         if (!is(object@grm, "Matrix") && !is.matrix(object@grm))
