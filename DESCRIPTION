@@ -1,0 +1,40 @@
+Package: QuasarExperiment
+Title: SummarizedExperiment Interface for the quasar eQTL Mapping Tool
+Version: 0.1.0
+Authors@R: c(
+    person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
+           role = c("aut", "cre")),
+    person("Claude", "Sonnet", role = "eng",
+           comment = "Anthropic AI assistant"))
+Description: Provides a SummarizedExperiment-derived container,
+    QuasarExperiment, for managing phenotype, covariate, genotype, and
+    genetic relatedness matrix data for use with the quasar eQTL mapping
+    tool. Genotype data is represented lazily via BEDMatrix, avoiding
+    loading large PLINK binary files into memory. A runQuasar() method
+    handles file I/O and invokes the quasar binary, returning results as
+    GRanges objects.
+License: Artistic-2.0
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+biocViews: GeneExpression, SNP, GenomeWideAssociation, Sequencing,
+    RNASeq, DataRepresentation
+Depends:
+    R (>= 4.3.0),
+    SummarizedExperiment,
+    GenomicRanges
+Imports:
+    methods,
+    utils,
+    stats,
+    S4Vectors,
+    IRanges,
+    Matrix,
+    BEDMatrix
+Suggests:
+    BiocStyle,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0
