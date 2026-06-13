@@ -18,11 +18,11 @@ grm(x) <- value
 \arguments{
 \item{x}{A \link{QuasarExperiment}.}
 
-\item{value}{A square matrix or \link[Matrix:Matrix]{Matrix::Matrix} (samples × samples),
+\item{value}{A square matrix or \code{Matrix} (samples × samples),
 or \code{NULL}.}
 }
 \value{
-\code{grm()} returns the GRM, or \code{NULL} if none was provided.
+\code{grm()} returns the GRM as a \code{dspMatrix} or base matrix, or \code{NULL} if none was provided.
 }
 \description{
 Access the genetic relatedness matrix

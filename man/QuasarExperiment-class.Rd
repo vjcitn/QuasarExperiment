@@ -19,7 +19,7 @@ pseudobulk counts
 \item \strong{variantRanges}: \link[GenomicRanges:GRanges]{GenomicRanges::GRanges} for each variant, with
 metadata columns \code{snp_id}, \code{ref}, \code{alt}
 \item \strong{grm}: optional packed-symmetric genetic relatedness matrix
-(\link[Matrix:dspMatrix]{Matrix::dspMatrix}), or \code{NULL}
+(\code{dspMatrix} from the Matrix package), or \code{NULL}
 \item \strong{plinkPrefix}: path prefix for the PLINK file set, passed directly to
 the quasar binary so the genotype data are never materialised in R
 }
@@ -33,7 +33,7 @@ matrix-like object.}
 \item{\code{variantRanges}}{A \link[GenomicRanges:GRanges]{GenomicRanges::GRanges} of length equal to
 \code{nrow(geno)}.}
 
-\item{\code{grm}}{A \link[Matrix:dspMatrix]{Matrix::dspMatrix} of dimension samples × samples, or \code{NULL}.}
+\item{\code{grm}}{A \code{dspMatrix} (Matrix package) of dimension samples × samples, or \code{NULL}.}
 
 \item{\code{plinkPrefix}}{A length-one character string giving the PLINK file
 prefix.}
