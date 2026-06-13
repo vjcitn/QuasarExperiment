@@ -114,12 +114,37 @@ setMethod("runQuasar", "QuasarExperiment",
 # ---- internal helpers ---------------------------------------------------
 
 .resolve_binary <- function(binary) {
-    if (is.null(binary))
-        binary <- getOption("QuasarExperiment.binary", default = "quasar")
-    if (!nzchar(Sys.which(binary)) && !file.exists(binary))
-        stop("quasar binary not found: '", binary,
-             "'. Set options(QuasarExperiment.binary = '/path/to/quasar').")
-    binary
+    if (!is.null(binary))
+        return(binary)
+
+    # honour explicit user preference
+    opt <- getOption("QuasarExperiment.binary")
+    if (!is.null(opt))
+        return(opt)
+
+    # use bundled binary on macOS ARM64
+    si <- Sys.info()
+    if (identical(si[["sysname"]], "Darwin") &&
+            identical(si[["machine"]], "arm64")) {
+        bundled <- system.file("mac_arm_bin", "quasar",
+                               package = "QuasarExperiment")
+        if (nzchar(bundled) && file.exists(bundled)) {
+            Sys.chmod(bundled, "0755")   # ensure executable after install
+            return(bundled)
+        }
+    }
+
+    # fall back to PATH
+    path_hit <- Sys.which("quasar")
+    if (nzchar(path_hit))
+        return(path_hit)
+
+    stop(
+        "quasar binary not found. ",
+        "On macOS ARM64 a bundled binary is used automatically. ",
+        "On other platforms, install quasar and ensure it is on PATH, ",
+        "or set options(QuasarExperiment.binary = '/path/to/quasar')."
+    )
 }
 
 .write_pheno_bed <- function(x, assayName, path) {

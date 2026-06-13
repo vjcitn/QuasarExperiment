@@ -14,6 +14,8 @@ Description: Provides a SummarizedExperiment-derived container,
     handles file I/O and invokes the quasar binary, returning results as
     GRanges objects.
 License: Artistic-2.0
+SystemRequirements: quasar eQTL mapping tool (https://github.com/jeffreypullin/quasar);
+    a macOS ARM64 binary is bundled in inst/mac_arm_bin
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 biocViews: GeneExpression, SNP, GenomeWideAssociation, Sequencing,
