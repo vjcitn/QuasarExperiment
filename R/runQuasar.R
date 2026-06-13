@@ -134,7 +134,7 @@ setMethod("runQuasar", "QuasarExperiment",
         check.names   = FALSE,
         stringsAsFactors = FALSE
     )
-    out <- cbind(df, t(mat)[colnames(x), , drop = FALSE])
+    out <- cbind(df, mat[, colnames(x), drop = FALSE])
     write.table(out, path, sep = "\t", quote = FALSE, row.names = FALSE)
 }
 
