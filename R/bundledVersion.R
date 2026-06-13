@@ -1,8 +1,9 @@
 #' Report the version of the bundled quasar binary
 #'
 #' Reads the `VERSION` metadata file shipped alongside the platform-specific
-#' bundled binary in `inst/mac_arm_bin/`.  Returns `NA` when no bundled binary
-#' is present for the current platform.
+#' bundled binary (`inst/mac_arm_bin/` on macOS ARM64, `inst/windows_bin/` on
+#' Windows).  Returns `NA` when no bundled binary is present for the current
+#' platform.
 #'
 #' @return A named character vector with fields `quasar_version`,
 #'   `source_commit`, `source_repo`, `build_date`, `platform`, and
@@ -13,8 +14,15 @@
 #'
 #' @export
 bundledQuasarVersion <- function() {
-    vfile <- system.file("mac_arm_bin", "VERSION",
-                         package = "QuasarExperiment")
+    si <- Sys.info()
+    vfile <- if (identical(si[["sysname"]], "Darwin") &&
+                     identical(si[["machine"]], "arm64")) {
+        system.file("mac_arm_bin", "VERSION", package = "QuasarExperiment")
+    } else if (identical(si[["sysname"]], "Windows")) {
+        system.file("windows_bin", "VERSION", package = "QuasarExperiment")
+    } else {
+        ""
+    }
     if (!nzchar(vfile))
         return(NA_character_)
     lines <- readLines(vfile)

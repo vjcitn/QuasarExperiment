@@ -122,16 +122,20 @@ setMethod("runQuasar", "QuasarExperiment",
     if (!is.null(opt))
         return(opt)
 
-    # use bundled binary on macOS ARM64
+    # use bundled binary for known platforms
     si <- Sys.info()
-    if (identical(si[["sysname"]], "Darwin") &&
-            identical(si[["machine"]], "arm64")) {
-        bundled <- system.file("mac_arm_bin", "quasar",
-                               package = "QuasarExperiment")
-        if (nzchar(bundled) && file.exists(bundled)) {
-            Sys.chmod(bundled, "0755")   # ensure executable after install
-            return(bundled)
-        }
+    bundled <- if (identical(si[["sysname"]], "Darwin") &&
+                       identical(si[["machine"]], "arm64")) {
+        system.file("mac_arm_bin", "quasar", package = "QuasarExperiment")
+    } else if (identical(si[["sysname"]], "Windows")) {
+        system.file("windows_bin", "quasar.exe", package = "QuasarExperiment")
+    } else {
+        ""
+    }
+    if (nzchar(bundled) && file.exists(bundled)) {
+        if (!identical(si[["sysname"]], "Windows"))
+            Sys.chmod(bundled, "0755")
+        return(bundled)
     }
 
     # fall back to PATH
