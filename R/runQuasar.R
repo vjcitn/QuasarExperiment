@@ -120,6 +120,20 @@ setMethod("runQuasar", "QuasarExperiment",
                 args <- c(args, paste0("--", nm), as.character(val))
         }
 
+        # Temporarily unset KMP/OMP thread-limit variables that R or its
+        # packages may have set, so quasar's OpenMP can use all cores.
+        omp_limit_vars <- c("OMP_THREAD_LIMIT", "KMP_DEVICE_THREAD_LIMIT",
+                            "KMP_TEAMS_THREAD_LIMIT", "KMP_ALL_THREADS")
+        saved_env <- Sys.getenv(omp_limit_vars, names = TRUE, unset = NA_character_)
+        vars_to_unset <- names(saved_env)[!is.na(saved_env)]
+        if (length(vars_to_unset)) {
+            Sys.unsetenv(vars_to_unset)
+            on.exit(
+                do.call(Sys.setenv, as.list(saved_env[vars_to_unset])),
+                add = TRUE
+            )
+        }
+
         status <- system2(binary, args = args)
         if (status != 0L)
             stop("quasar exited with status ", status)

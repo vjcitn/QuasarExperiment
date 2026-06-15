@@ -1,6 +1,6 @@
 Package: QuasarExperiment
 Title: SummarizedExperiment Interface for the quasar eQTL Mapping Tool
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
