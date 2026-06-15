@@ -13,8 +13,9 @@ A named character vector with fields \code{quasar_version},
 }
 \description{
 Reads the \code{VERSION} metadata file shipped alongside the platform-specific
-bundled binary in \verb{inst/mac_arm_bin/}.  Returns \code{NA} when no bundled binary
-is present for the current platform.
+bundled binary (\verb{inst/mac_arm_bin/} on macOS ARM64, \verb{inst/windows_bin/} on
+Windows).  Returns \code{NA} when no bundled binary is present for the current
+platform.
 }
 \examples{
 bundledQuasarVersion()

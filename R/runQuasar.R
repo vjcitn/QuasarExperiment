@@ -18,6 +18,10 @@
 #'   likelihood for NB dispersion). Recommended for `model = "nb_glm"`.
 #' @param outPrefix Character prefix for quasar output files written inside
 #'   the temp directory. Defaults to `"quasar_run"`.
+#' @param debug Logical; if `TRUE`, the temporary directory containing the
+#'   intermediate input files (phenotype BED, covariate TSV, optional GRM) is
+#'   not deleted after the run and its path is printed.  Use this to inspect
+#'   exactly what is passed to the quasar binary.
 #' @param ... Additional arguments passed verbatim to the quasar binary as
 #'   `--key value` pairs (values coerced to character). Logical `TRUE` values
 #'   emit the flag with no value.
@@ -48,7 +52,8 @@
 setGeneric("runQuasar",
     function(x, binary = NULL, model = c("lm", "nb_glm", "lmm"),
              mode = c("cis", "trans", "residualise"),
-             assayName = NULL, useApl = FALSE, outPrefix = "quasar_run", ...)
+             assayName = NULL, useApl = FALSE, outPrefix = "quasar_run",
+             debug = FALSE, ...)
         standardGeneric("runQuasar")
 )
 
@@ -56,7 +61,8 @@ setGeneric("runQuasar",
 setMethod("runQuasar", "QuasarExperiment",
     function(x, binary = NULL, model = c("lm", "nb_glm", "lmm"),
              mode = c("cis", "trans", "residualise"),
-             assayName = NULL, useApl = FALSE, outPrefix = "quasar_run", ...) {
+             assayName = NULL, useApl = FALSE, outPrefix = "quasar_run",
+             debug = FALSE, ...) {
 
         model <- match.arg(model)
         mode  <- match.arg(mode)
@@ -71,7 +77,11 @@ setMethod("runQuasar", "QuasarExperiment",
 
         tmpdir <- tempfile("quasar_")
         dir.create(tmpdir)
-        on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+        if (debug) {
+            message("debug=TRUE: intermediate files kept in ", tmpdir)
+        } else {
+            on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+        }
 
         pheno_file <- file.path(tmpdir, "pheno.bed")
         cov_file   <- file.path(tmpdir, "cov.tsv")
@@ -81,6 +91,13 @@ setMethod("runQuasar", "QuasarExperiment",
         .write_cov_tsv(x, cov_file)
         if (!is.null(grm_file))
             .write_grm_tsv(x, grm_file)
+
+        if (debug) {
+            message("--- pheno.bed (first 2 lines) ---")
+            message(paste(readLines(pheno_file, n = 2), collapse = "\n"))
+            message("--- cov.tsv (first 2 lines) ---")
+            message(paste(readLines(cov_file, n = 2), collapse = "\n"))
+        }
 
         extra <- list(...)
         args <- c(
@@ -154,9 +171,27 @@ setMethod("runQuasar", "QuasarExperiment",
 .write_pheno_bed <- function(x, assayName, path) {
     rr  <- SummarizedExperiment::rowRanges(x)
     mat <- SummarizedExperiment::assay(x, assayName)
+    # quasar expects integer chromosome numbers using PLINK coding:
+    # autosomes 1-22, X=23, Y=24, XY=25, MT/M=26
+    chr_raw <- sub("^chr", "", as.character(GenomicRanges::seqnames(rr)))
+    chr_raw[chr_raw == "X"]              <- "23"
+    chr_raw[chr_raw == "Y"]              <- "24"
+    chr_raw[chr_raw == "XY"]             <- "25"
+    chr_raw[chr_raw %in% c("M", "MT")]   <- "26"
+    chr <- suppressWarnings(as.integer(chr_raw))
+    if (anyNA(chr)) {
+        bad <- unique(as.character(GenomicRanges::seqnames(rr))[is.na(chr)])
+        warning("Dropping ", sum(is.na(chr)), " features with seqnames that ",
+                "cannot be mapped to PLINK integer codes: ",
+                paste(bad, collapse = ", "))
+        keep <- !is.na(chr)
+        rr   <- rr[keep]
+        mat  <- mat[keep, , drop = FALSE]
+        chr  <- chr[keep]
+    }
     # convert back to 0-based half-open BED coordinates
     df <- data.frame(
-        `#chr`        = as.character(GenomicRanges::seqnames(rr)),
+        `#chr`        = chr,
         start         = GenomicRanges::start(rr) - 1L,
         end           = GenomicRanges::end(rr),
         phenotype_id  = names(rr),
@@ -170,6 +205,12 @@ setMethod("runQuasar", "QuasarExperiment",
 .write_cov_tsv <- function(x, path) {
     cd <- as.data.frame(SummarizedExperiment::colData(x))
     cd[["fam_index"]] <- NULL
+    non_numeric <- names(cd)[!vapply(cd, is.numeric, logical(1))]
+    if (length(non_numeric))
+        stop("Non-numeric covariate columns: ",
+             paste(non_numeric, collapse = ", "),
+             ". Use QuasarExperimentFromRSE() with a covariateFormula ",
+             "to dummy-code categorical variables via model.matrix().")
     out <- cbind(data.frame(sample_id = rownames(cd),
                              stringsAsFactors = FALSE), cd)
     write.table(out, path, sep = "\t", quote = FALSE, row.names = FALSE)

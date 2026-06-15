@@ -13,6 +13,7 @@ runQuasar(
   assayName = NULL,
   useApl = FALSE,
   outPrefix = "quasar_run",
+  debug = FALSE,
   ...
 )
 
@@ -24,6 +25,7 @@ runQuasar(
   assayName = NULL,
   useApl = FALSE,
   outPrefix = "quasar_run",
+  debug = FALSE,
   ...
 )
 }
@@ -48,6 +50,11 @@ likelihood for NB dispersion). Recommended for \code{model = "nb_glm"}.}
 
 \item{outPrefix}{Character prefix for quasar output files written inside
 the temp directory. Defaults to \code{"quasar_run"}.}
+
+\item{debug}{Logical; if \code{TRUE}, the temporary directory containing the
+intermediate input files (phenotype BED, covariate TSV, optional GRM) is
+not deleted after the run and its path is printed.  Use this to inspect
+exactly what is passed to the quasar binary.}
 
 \item{...}{Additional arguments passed verbatim to the quasar binary as
 \verb{--key value} pairs (values coerced to character). Logical \code{TRUE} values

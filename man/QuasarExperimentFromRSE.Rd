@@ -7,7 +7,7 @@
 QuasarExperimentFromRSE(
   se,
   plinkPrefix,
-  covColumns = NULL,
+  covariateMatrix,
   grmFile = NULL,
   assayName = NULL,
   featureIdColumn = NULL
@@ -21,10 +21,16 @@ QuasarExperimentFromRSE(
 \item{plinkPrefix}{Path prefix for the PLINK file set (\code{.bed}, \code{.bim},
 \code{.fam}).}
 
-\item{covColumns}{Character vector naming columns of \code{colData(se)} to treat
-as covariates.  These columns are written to the covariate file passed to
-quasar.  Defaults to all columns of \code{colData(se)} except \code{fam_index} (if
-present).}
+\item{covariateMatrix}{A numeric matrix with rows corresponding to samples
+(in the same order as \code{colnames(se)}) and columns corresponding to
+covariates.  quasar requires all covariates to be numeric; categorical
+variables must be dummy-coded before passing.  The recommended workflow is
+to call \code{\link[stats:model.matrix]{stats::model.matrix()}} on \code{as.data.frame(colData(se))} — the
+resulting intercept column (named \code{(Intercept)}) should be renamed \code{int}
+to match quasar's convention.  The
+\href{https://bioconductor.org/packages/ExploreModelMatrix}{ExploreModelMatrix}
+package provides an interactive interface for building and inspecting
+model matrices.}
 
 \item{grmFile}{Optional path to a GRM TSV file (same format as accepted by
 \code{\link[=QuasarExperiment]{QuasarExperiment()}}).  Pass \code{NULL} (default) to omit the GRM.}
@@ -66,13 +72,16 @@ qe_ref <- QuasarExperiment(
 )
 se <- as(qe_ref, "RangedSummarizedExperiment")
 
-# Reconstruct from the SE
+# Build a model matrix from colData and reconstruct
+cd <- as.data.frame(colData(se))
+mm <- model.matrix(~ sex + age + expr_pc1 + expr_pc2 +
+                     geno_pc1 + geno_pc2 + geno_pc3 +
+                     geno_pc4 + geno_pc5 + geno_pc6, data = cd)
+colnames(mm)[colnames(mm) == "(Intercept)"] <- "int"
 qe2 <- QuasarExperimentFromRSE(
-    se          = se,
-    plinkPrefix = file.path(exdir, "chr22-n100"),
-    covColumns  = c("int", "sex", "age", "expr_pc1", "expr_pc2",
-                    "geno_pc1", "geno_pc2", "geno_pc3",
-                    "geno_pc4", "geno_pc5", "geno_pc6")
+    se              = se,
+    plinkPrefix     = file.path(exdir, "chr22-n100"),
+    covariateMatrix = mm
 )
 qe2
 

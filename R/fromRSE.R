@@ -11,10 +11,16 @@
 #'   `colnames()` match the individual IDs (IID) in the PLINK `.fam` file.
 #' @param plinkPrefix Path prefix for the PLINK file set (`.bed`, `.bim`,
 #'   `.fam`).
-#' @param covColumns Character vector naming columns of `colData(se)` to treat
-#'   as covariates.  These columns are written to the covariate file passed to
-#'   quasar.  Defaults to all columns of `colData(se)` except `fam_index` (if
-#'   present).
+#' @param covariateMatrix A numeric matrix with rows corresponding to samples
+#'   (in the same order as `colnames(se)`) and columns corresponding to
+#'   covariates.  quasar requires all covariates to be numeric; categorical
+#'   variables must be dummy-coded before passing.  The recommended workflow is
+#'   to call [stats::model.matrix()] on `as.data.frame(colData(se))` — the
+#'   resulting intercept column (named `(Intercept)`) should be renamed `int`
+#'   to match quasar's convention.  The
+#'   [ExploreModelMatrix](https://bioconductor.org/packages/ExploreModelMatrix)
+#'   package provides an interactive interface for building and inspecting
+#'   model matrices.
 #' @param grmFile Optional path to a GRM TSV file (same format as accepted by
 #'   [QuasarExperiment()]).  Pass `NULL` (default) to omit the GRM.
 #' @param assayName Name of the assay in `se` to use as the phenotype matrix.
@@ -48,19 +54,22 @@
 #' )
 #' se <- as(qe_ref, "RangedSummarizedExperiment")
 #'
-#' # Reconstruct from the SE
+#' # Build a model matrix from colData and reconstruct
+#' cd <- as.data.frame(colData(se))
+#' mm <- model.matrix(~ sex + age + expr_pc1 + expr_pc2 +
+#'                      geno_pc1 + geno_pc2 + geno_pc3 +
+#'                      geno_pc4 + geno_pc5 + geno_pc6, data = cd)
+#' colnames(mm)[colnames(mm) == "(Intercept)"] <- "int"
 #' qe2 <- QuasarExperimentFromRSE(
-#'     se          = se,
-#'     plinkPrefix = file.path(exdir, "chr22-n100"),
-#'     covColumns  = c("int", "sex", "age", "expr_pc1", "expr_pc2",
-#'                     "geno_pc1", "geno_pc2", "geno_pc3",
-#'                     "geno_pc4", "geno_pc5", "geno_pc6")
+#'     se              = se,
+#'     plinkPrefix     = file.path(exdir, "chr22-n100"),
+#'     covariateMatrix = mm
 #' )
 #' qe2
 #'
 #' @export
 QuasarExperimentFromRSE <- function(se, plinkPrefix,
-                                    covColumns      = NULL,
+                                    covariateMatrix,
                                     grmFile         = NULL,
                                     assayName       = NULL,
                                     featureIdColumn = NULL) {
@@ -97,16 +106,14 @@ QuasarExperimentFromRSE <- function(se, plinkPrefix,
         rr$phenotype_id <- feature_ids
 
     # ---- colData / covariates -----------------------------------------------
-    cd <- SummarizedExperiment::colData(se)
-    if (is.null(covColumns)) {
-        covColumns <- setdiff(colnames(cd), "fam_index")
-    } else {
-        missing_cols <- setdiff(covColumns, colnames(cd))
-        if (length(missing_cols))
-            stop("covColumns not found in colData(se): ",
-                 paste(missing_cols, collapse = ", "))
-    }
-    cov_df <- cd[, covColumns, drop = FALSE]
+    if (!is.matrix(covariateMatrix) || !is.numeric(covariateMatrix))
+        stop("'covariateMatrix' must be a numeric matrix (rows = samples, ",
+             "cols = covariates). See ?model.matrix or the ",
+             "ExploreModelMatrix Bioconductor package.")
+    if (nrow(covariateMatrix) != ncol(se))
+        stop("nrow(covariateMatrix) (", nrow(covariateMatrix), ") must equal ",
+             "ncol(se) (", ncol(se), ")")
+    cov_df <- S4Vectors::DataFrame(covariateMatrix, row.names = colnames(se))
 
     # ---- PLINK / BEDMatrix --------------------------------------------------
     bim_file <- paste0(plinkPrefix, ".bim")
