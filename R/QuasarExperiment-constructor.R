@@ -18,6 +18,8 @@
 #'   the same sample IDs in the header. Pass `NULL` (default) to omit the GRM.
 #' @param assayName Name to assign the phenotype matrix in `assays()`.
 #'   Defaults to `"pheno"`.
+#' @param genome Genome build string (e.g. `"hg38"`) assigned to the
+#'   `seqinfo` of `rowRanges`. Defaults to `NA` (unspecified).
 #'
 #' @return A [QuasarExperiment] object.
 #'
@@ -38,13 +40,15 @@
 #'     plinkPrefix = file.path(exdir, "chr22-n100"),
 #'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
 #'     covFile     = file.path(exdir, "cov-n100.tsv"),
-#'     grmFile     = file.path(exdir, "grm-n100.tsv")
+#'     grmFile     = file.path(exdir, "grm-n100.tsv"),
+#'     genome      = "hg38"
 #' )
 #' qe
 #'
 #' @export
 QuasarExperiment <- function(plinkPrefix, phenoFile, covFile,
-                             grmFile = NULL, assayName = "pheno") {
+                             grmFile = NULL, assayName = "pheno",
+                             genome = NA_character_) {
     # ---- phenotype BED --------------------------------------------------
     pheno_raw <- read.table(phenoFile, header = TRUE, sep = "\t",
                             check.names = FALSE, comment.char = "")
@@ -68,6 +72,7 @@ QuasarExperiment <- function(plinkPrefix, phenoFile, covFile,
         phenotype_id = feature_ids
     )
     names(row_gr) <- feature_ids
+    if (!is.na(genome)) GenomeInfoDb::genome(row_gr) <- genome
 
     # ---- covariates -----------------------------------------------------
     cov_raw <- read.table(covFile, header = TRUE, sep = "\t",

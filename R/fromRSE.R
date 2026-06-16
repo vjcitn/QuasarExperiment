@@ -25,6 +25,8 @@
 #'   [QuasarExperiment()]).  Pass `NULL` (default) to omit the GRM.
 #' @param assayName Name of the assay in `se` to use as the phenotype matrix.
 #'   Defaults to the first assay.
+#' @param genome Genome build string (e.g. `"hg38"`) assigned to the
+#'   `seqinfo` of `rowRanges`. Defaults to `NA` (unspecified).
 #' @param featureIdColumn Name of a metadata column in `rowRanges(se)` to use
 #'   as the `phenotype_id`.  If `NULL` (default), `rownames(se)` are used.
 #'
@@ -72,7 +74,8 @@ QuasarExperimentFromRSE <- function(se, plinkPrefix,
                                     covariateMatrix,
                                     grmFile         = NULL,
                                     assayName       = NULL,
-                                    featureIdColumn = NULL) {
+                                    featureIdColumn = NULL,
+                                    genome          = NA_character_) {
 
     if (!is(se, "RangedSummarizedExperiment"))
         stop("'se' must be a RangedSummarizedExperiment")
@@ -104,6 +107,7 @@ QuasarExperimentFromRSE <- function(se, plinkPrefix,
     names(rr) <- feature_ids
     if (!"phenotype_id" %in% names(S4Vectors::mcols(rr)))
         rr$phenotype_id <- feature_ids
+    if (!is.na(genome)) GenomeInfoDb::genome(rr) <- genome
 
     # ---- colData / covariates -----------------------------------------------
     if (!is.matrix(covariateMatrix) || !is.numeric(covariateMatrix))

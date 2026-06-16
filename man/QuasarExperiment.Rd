@@ -9,7 +9,8 @@ QuasarExperiment(
   phenoFile,
   covFile,
   grmFile = NULL,
-  assayName = "pheno"
+  assayName = "pheno",
+  genome = NA_character_
 )
 }
 \arguments{
@@ -30,6 +31,9 @@ the same sample IDs in the header. Pass \code{NULL} (default) to omit the GRM.}
 
 \item{assayName}{Name to assign the phenotype matrix in \code{assays()}.
 Defaults to \code{"pheno"}.}
+
+\item{genome}{Genome build string (e.g. \code{"hg38"}) assigned to the
+\code{seqinfo} of \code{rowRanges}. Defaults to \code{NA} (unspecified).}
 }
 \value{
 A \link{QuasarExperiment} object.
@@ -57,7 +61,8 @@ qe <- QuasarExperiment(
     plinkPrefix = file.path(exdir, "chr22-n100"),
     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
     covFile     = file.path(exdir, "cov-n100.tsv"),
-    grmFile     = file.path(exdir, "grm-n100.tsv")
+    grmFile     = file.path(exdir, "grm-n100.tsv"),
+    genome      = "hg38"
 )
 qe
 

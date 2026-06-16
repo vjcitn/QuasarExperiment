@@ -10,7 +10,8 @@ QuasarExperimentFromRSE(
   covariateMatrix,
   grmFile = NULL,
   assayName = NULL,
-  featureIdColumn = NULL
+  featureIdColumn = NULL,
+  genome = NA_character_
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ Defaults to the first assay.}
 
 \item{featureIdColumn}{Name of a metadata column in \code{rowRanges(se)} to use
 as the \code{phenotype_id}.  If \code{NULL} (default), \code{rownames(se)} are used.}
+
+\item{genome}{Genome build string (e.g. \code{"hg38"}) assigned to the
+\code{seqinfo} of \code{rowRanges}. Defaults to \code{NA} (unspecified).}
 }
 \value{
 A \link{QuasarExperiment} object.
