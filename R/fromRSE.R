@@ -126,11 +126,7 @@ QuasarExperimentFromRSE <- function(se, plinkPrefix,
 
     fam     <- read.table(fam_file, header = FALSE,
                           col.names = c("fid", "iid", "pat", "mat", "sex", "phen"))
-    fam_idx <- match(sample_ids, fam[["iid"]])
-    missing_geno <- sample_ids[is.na(fam_idx)]
-    if (length(missing_geno))
-        warning("Samples in se not found in .fam file: ",
-                paste(missing_geno, collapse = ", "))
+    fam_idx <- .match_fam_ids(sample_ids, fam[["iid"]])
     cov_df[["fam_index"]] <- fam_idx
 
     # ---- variant ranges (from .bim) -----------------------------------------

@@ -96,12 +96,7 @@ QuasarExperiment <- function(plinkPrefix, phenoFile, covFile,
     # store index mapping phenotype samples → fam rows in colData
     fam <- read.table(fam_file, header = FALSE,
                       col.names = c("fid", "iid", "pat", "mat", "sex", "phen"))
-    fam_ids <- fam[["iid"]]
-    fam_idx <- match(sample_ids, fam_ids)
-    missing_geno <- sample_ids[is.na(fam_idx)]
-    if (length(missing_geno))
-        warning("Samples in phenotype file not found in .fam file: ",
-                paste(missing_geno, collapse = ", "))
+    fam_idx <- .match_fam_ids(sample_ids, fam[["iid"]])
     cov_df[["fam_index"]] <- fam_idx
 
     # ---- variant ranges (from .bim) -------------------------------------
